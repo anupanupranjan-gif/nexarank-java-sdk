@@ -117,6 +117,7 @@
                 <configuration>
                     <publishingServerId>central</publishingServerId>
                     <autoPublish>true</autoPublish>
+                    <skip>${central-publishing.skip}</skip>
                 </configuration>
             </plugin>
         </plugins>
