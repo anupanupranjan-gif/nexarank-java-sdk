@@ -11,7 +11,6 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @EnableConfigurationProperties(NexaRankProperties.class)
-@ConditionalOnProperty(prefix = "nexarank", name = "enabled", havingValue = "true", matchIfMissing = true)
 public class NexaRankAutoConfiguration {
 
     @Bean
