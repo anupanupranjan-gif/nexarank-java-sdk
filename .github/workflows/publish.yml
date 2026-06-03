@@ -1,8 +1,9 @@
-name: Publish to GitHub Packages
+name: Publish to Maven Central
 
 on:
   push:
-    branches: [ main ]
+    tags:
+      - 'v*'
   workflow_dispatch:
 
 jobs:
@@ -20,12 +21,30 @@ jobs:
         with:
           java-version: '21'
           distribution: 'temurin'
-          server-id: github
-          server-username: GITHUB_ACTOR
-          server-password: GITHUB_TOKEN
 
-      - name: Publish to GitHub Packages
-        run: mvn clean deploy -DskipTests -Dgpg.skip=true -Dcentral-publishing.skip=true
+      - name: Configure GPG
+        run: |
+          echo "${{ secrets.GPG_PRIVATE_KEY }}" | gpg --batch --import
+          gpg --list-secret-keys --keyid-format LONG
+
+      - name: Configure Maven settings
+        run: |
+          mkdir -p ~/.m2
+          cat > ~/.m2/settings.xml << 'SETTINGS'
+          <settings>
+            <servers>
+              <server>
+                <id>central</id>
+                <username>${env.SONATYPE_USERNAME}</username>
+                <password>${env.SONATYPE_PASSWORD}</password>
+              </server>
+            </servers>
+          </settings>
+          SETTINGS
+
+      - name: Publish to Maven Central
+        run: mvn clean deploy -DskipTests
         env:
-          GITHUB_ACTOR: ${{ github.actor }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
+          SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
