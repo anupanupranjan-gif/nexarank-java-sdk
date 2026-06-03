@@ -3,24 +3,67 @@ package com.nexarank.client;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.List;
+import java.util.Map;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class NexaRankEnrichedQuery {
 
     private String originalQuery;
     private String expandedQuery;
+    private String engineType;
     private List<BoostInstruction> boosts;
     private List<PinInstruction> pins;
     private List<BuryInstruction> buries;
+    private String redirectUrl;
+    private Map<String, Object> engineDsl;
+    private List<String> appliedRules;
     private List<String> synonyms;
     private int rulesApplied;
     private long processingMs;
 
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public record BoostInstruction(String field, String value, float factor) {}
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public record PinInstruction(String productId, int position) {}
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public record BuryInstruction(String field, String value, float factor) {}
+
+    public static NexaRankEnrichedQuery passthrough(String query) {
+        NexaRankEnrichedQuery r = new NexaRankEnrichedQuery();
+        r.setOriginalQuery(query);
+        r.setExpandedQuery(query);
+        r.setBoosts(List.of());
+        r.setPins(List.of());
+        r.setBuries(List.of());
+        r.setAppliedRules(List.of());
+        r.setSynonyms(List.of());
+        return r;
+    }
+
+    public boolean hasRules() {
+        return (appliedRules != null && !appliedRules.isEmpty())
+            || rulesApplied > 0;
+    }
+
+    public int getAppliedRulesCount() {
+        return appliedRules != null ? appliedRules.size() : rulesApplied;
+    }
+
+    public boolean hasBoosts() { return boosts != null && !boosts.isEmpty(); }
+    public boolean hasPins()   { return pins != null && !pins.isEmpty(); }
+    public boolean hasBuries() { return buries != null && !buries.isEmpty(); }
+    public boolean isRedirect(){ return redirectUrl != null && !redirectUrl.isBlank(); }
+
     public String getOriginalQuery() { return originalQuery; }
-    public void setOriginalQuery(String originalQuery) { this.originalQuery = originalQuery; }
+    public void setOriginalQuery(String q) { this.originalQuery = q; }
 
     public String getExpandedQuery() { return expandedQuery; }
-    public void setExpandedQuery(String expandedQuery) { this.expandedQuery = expandedQuery; }
+    public void setExpandedQuery(String q) { this.expandedQuery = q; }
+
+    public String getEngineType() { return engineType; }
+    public void setEngineType(String t) { this.engineType = t; }
 
     public List<BoostInstruction> getBoosts() { return boosts; }
     public void setBoosts(List<BoostInstruction> boosts) { this.boosts = boosts; }
@@ -31,6 +74,15 @@ public class NexaRankEnrichedQuery {
     public List<BuryInstruction> getBuries() { return buries; }
     public void setBuries(List<BuryInstruction> buries) { this.buries = buries; }
 
+    public String getRedirectUrl() { return redirectUrl; }
+    public void setRedirectUrl(String url) { this.redirectUrl = url; }
+
+    public Map<String, Object> getEngineDsl() { return engineDsl; }
+    public void setEngineDsl(Map<String, Object> dsl) { this.engineDsl = dsl; }
+
+    public List<String> getAppliedRules() { return appliedRules; }
+    public void setAppliedRules(List<String> rules) { this.appliedRules = rules; }
+
     public List<String> getSynonyms() { return synonyms; }
     public void setSynonyms(List<String> synonyms) { this.synonyms = synonyms; }
 
@@ -38,41 +90,5 @@ public class NexaRankEnrichedQuery {
     public void setRulesApplied(int rulesApplied) { this.rulesApplied = rulesApplied; }
 
     public long getProcessingMs() { return processingMs; }
-    public void setProcessingMs(long processingMs) { this.processingMs = processingMs; }
-
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    public static class BoostInstruction {
-        private String field;
-        private String value;
-        private float factor;
-
-        public String getField() { return field; }
-        public void setField(String field) { this.field = field; }
-        public String getValue() { return value; }
-        public void setValue(String value) { this.value = value; }
-        public float getFactor() { return factor; }
-        public void setFactor(float factor) { this.factor = factor; }
-    }
-
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    public static class PinInstruction {
-        private String productId;
-        private int position;
-
-        public String getProductId() { return productId; }
-        public void setProductId(String productId) { this.productId = productId; }
-        public int getPosition() { return position; }
-        public void setPosition(int position) { this.position = position; }
-    }
-
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    public static class BuryInstruction {
-        private String field;
-        private String value;
-
-        public String getField() { return field; }
-        public void setField(String field) { this.field = field; }
-        public String getValue() { return value; }
-        public void setValue(String value) { this.value = value; }
-    }
+    public void setProcessingMs(long ms) { this.processingMs = ms; }
 }
