@@ -78,6 +78,71 @@ public class NexaRankClient {
         }
     }
 
+    /**
+     * Rich enrich — supports sessionId and selectedFacets.
+     * Uses POST to pass the full context to nexarank-api.
+     * Falls back to passthrough on any error.
+     */
+    public NexaRankEnrichedQuery enrich(String query,
+                                        String sessionId,
+                                        java.util.Map<String, String> selectedFacets) {
+        if (!config.isEnabled()) return emptyResult(query);
+
+        // No session or facets — use cached simple path
+        if ((sessionId == null || sessionId.isBlank())
+                && (selectedFacets == null || selectedFacets.isEmpty())) {
+            return enrich(query);
+        }
+
+        try {
+            return callEnrichApiPost(query, sessionId, selectedFacets);
+        } catch (Exception e) {
+            log.warn("NexaRank enrich (rich) failed for query='{}': {} — passthrough",
+                    query, e.getMessage());
+            return emptyResult(query);
+        }
+    }
+
+    private NexaRankEnrichedQuery callEnrichApiPost(String query,
+                                                    String sessionId,
+                                                    java.util.Map<String, String> selectedFacets)
+            throws java.io.IOException {
+
+        java.util.Map<String, Object> body = new java.util.HashMap<>();
+        body.put("query", query);
+        if (sessionId != null && !sessionId.isBlank()) body.put("sessionId", sessionId);
+        if (selectedFacets != null && !selectedFacets.isEmpty())
+            body.put("selectedFacets", selectedFacets);
+
+        String json = objectMapper.writeValueAsString(body);
+        String urlStr = config.getBaseUrl() + ENRICH_PATH;
+
+        URL url = new URL(urlStr);
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        try {
+            conn.setRequestMethod("POST");
+            conn.setDoOutput(true);
+            conn.setConnectTimeout(config.getConnectTimeoutMs());
+            conn.setReadTimeout(config.getReadTimeoutMs());
+            conn.setRequestProperty("Content-Type", "application/json");
+            conn.setRequestProperty("Accept", "application/json");
+            if (config.getApiKey() != null && !config.getApiKey().isBlank())
+                conn.setRequestProperty("X-Api-Key", config.getApiKey());
+
+            conn.getOutputStream().write(json.getBytes(StandardCharsets.UTF_8));
+
+            int status = conn.getResponseCode();
+            if (status != 200)
+                throw new NexaRankException("NexaRank API returned status " + status, status);
+
+            byte[] resp = conn.getInputStream().readAllBytes();
+            return objectMapper.readValue(new String(resp, StandardCharsets.UTF_8),
+                    NexaRankEnrichedQuery.class);
+        } finally {
+            conn.disconnect();
+        }
+    }
+
     private NexaRankEnrichedQuery emptyResult(String query) {
         NexaRankEnrichedQuery result = new NexaRankEnrichedQuery();
         result.setOriginalQuery(query);
