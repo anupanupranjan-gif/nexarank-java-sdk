@@ -20,6 +20,9 @@ public class NexaRankEnrichedQuery {
     private List<String> synonyms;
     private int rulesApplied;
     private long processingMs;
+    private List<String> personalizedBoostIds;
+    private Integer maxPerBrand;
+    private Integer maxPerCategory;
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     public record BoostInstruction(String field, String value, float factor) {}
@@ -55,6 +58,8 @@ public class NexaRankEnrichedQuery {
     public boolean hasPins()   { return pins != null && !pins.isEmpty(); }
     public boolean hasBuries() { return buries != null && !buries.isEmpty(); }
     public boolean isRedirect(){ return redirectUrl != null && !redirectUrl.isBlank(); }
+    public boolean hasPersonalization() { return personalizedBoostIds != null && !personalizedBoostIds.isEmpty(); }
+    public boolean hasDiversity() { return maxPerBrand != null || maxPerCategory != null; }
 
     public String getOriginalQuery() { return originalQuery; }
     public void setOriginalQuery(String q) { this.originalQuery = q; }
@@ -91,4 +96,13 @@ public class NexaRankEnrichedQuery {
 
     public long getProcessingMs() { return processingMs; }
     public void setProcessingMs(long ms) { this.processingMs = ms; }
+
+    public List<String> getPersonalizedBoostIds() { return personalizedBoostIds; }
+    public void setPersonalizedBoostIds(List<String> ids) { this.personalizedBoostIds = ids; }
+
+    public Integer getMaxPerBrand() { return maxPerBrand; }
+    public void setMaxPerBrand(Integer maxPerBrand) { this.maxPerBrand = maxPerBrand; }
+
+    public Integer getMaxPerCategory() { return maxPerCategory; }
+    public void setMaxPerCategory(Integer maxPerCategory) { this.maxPerCategory = maxPerCategory; }
 }
