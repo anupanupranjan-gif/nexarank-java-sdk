@@ -1,6 +1,7 @@
 // Copyright (c) 2026 Anup Ranjan. Licensed under Apache 2.0 (https://www.apache.org/licenses/LICENSE-2.0)
 package com.nexarank.autoconfigure;
 
+import com.nexarank.client.ContentEnrichClient;
 import com.nexarank.client.NexaRankClient;
 import com.nexarank.client.NexaRankConfig;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -24,6 +25,10 @@ public class NexaRankAutoConfiguration {
         config.setEnabled(properties.isEnabled());
         config.setConnectTimeoutMs(properties.getConnectTimeoutMs());
         config.setReadTimeoutMs(properties.getReadTimeoutMs());
+        config.setMaxRetries(properties.getMaxRetries());
+        config.setBaseDelayMs(properties.getBaseDelayMs());
+        config.setTenantId(properties.getTenantId());
+        config.setProjectId(properties.getProjectId());
         return config;
     }
 
@@ -31,5 +36,11 @@ public class NexaRankAutoConfiguration {
     @ConditionalOnMissingBean
     public NexaRankClient nexaRankClient(NexaRankConfig nexaRankConfig) {
         return new NexaRankClient(nexaRankConfig);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public ContentEnrichClient contentEnrichClient(NexaRankConfig nexaRankConfig) {
+        return new ContentEnrichClient(nexaRankConfig);
     }
 }

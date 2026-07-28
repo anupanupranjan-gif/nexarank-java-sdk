@@ -10,6 +10,10 @@ public class NexaRankConfig {
     private boolean enabled = true;
     private int connectTimeoutMs = 3000;
     private int readTimeoutMs = 5000;
+    private int maxRetries = 2;
+    private long baseDelayMs = 200;
+    private String tenantId = "default";
+    private String projectId = "main";
 
     public NexaRankConfig() {}
 
@@ -38,4 +42,18 @@ public class NexaRankConfig {
 
     public int getReadTimeoutMs() { return readTimeoutMs; }
     public void setReadTimeoutMs(int readTimeoutMs) { this.readTimeoutMs = readTimeoutMs; }
+
+    /** Read by ContentEnrichClient only — NexaRankClient's query-pipeline enrich() has no retry. */
+    public int getMaxRetries() { return maxRetries; }
+    public void setMaxRetries(int maxRetries) { this.maxRetries = maxRetries; }
+
+    public long getBaseDelayMs() { return baseDelayMs; }
+    public void setBaseDelayMs(long baseDelayMs) { this.baseDelayMs = baseDelayMs; }
+
+    /** Read by ContentEnrichClient only — sent as X-Tenant-Id/X-Project-Id, matching nexarank-api's TenantContext defaults. */
+    public String getTenantId() { return tenantId; }
+    public void setTenantId(String tenantId) { this.tenantId = tenantId; }
+
+    public String getProjectId() { return projectId; }
+    public void setProjectId(String projectId) { this.projectId = projectId; }
 }
