@@ -61,6 +61,8 @@ public class NexaRankClient {
             conn.setConnectTimeout(config.getConnectTimeoutMs());
             conn.setReadTimeout(config.getReadTimeoutMs());
             conn.setRequestProperty("Accept", "application/json");
+            conn.setRequestProperty("X-Tenant-Id", config.getTenantId());
+            conn.setRequestProperty("X-Project-Id", config.getProjectId());
 
             if (config.getApiKey() != null && !config.getApiKey().isBlank()) {
                 conn.setRequestProperty("X-Api-Key", config.getApiKey());
@@ -126,6 +128,8 @@ public class NexaRankClient {
             conn.setReadTimeout(config.getReadTimeoutMs());
             conn.setRequestProperty("Content-Type", "application/json");
             conn.setRequestProperty("Accept", "application/json");
+            conn.setRequestProperty("X-Tenant-Id", config.getTenantId());
+            conn.setRequestProperty("X-Project-Id", config.getProjectId());
             if (config.getApiKey() != null && !config.getApiKey().isBlank())
                 conn.setRequestProperty("X-Api-Key", config.getApiKey());
 

@@ -50,7 +50,7 @@ public class NexaRankConfig {
     public long getBaseDelayMs() { return baseDelayMs; }
     public void setBaseDelayMs(long baseDelayMs) { this.baseDelayMs = baseDelayMs; }
 
-    /** Read by ContentEnrichClient only — sent as X-Tenant-Id/X-Project-Id, matching nexarank-api's TenantContext defaults. */
+    /** Sent as X-Tenant-Id/X-Project-Id by both NexaRankClient and ContentEnrichClient, matching nexarank-api's TenantContext defaults. */
     public String getTenantId() { return tenantId; }
     public void setTenantId(String tenantId) { this.tenantId = tenantId; }
 
